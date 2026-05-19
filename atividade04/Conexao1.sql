@@ -15,22 +15,15 @@ INSERT INTO contas (id, titular, saldo) VALUES
 SELECT * FROM contas;
 
 START TRANSACTION;
+
 SELECT * FROM contas
 WHERE id = 1
 FOR UPDATE;
-COMMIT;
 
 UPDATE contas
 SET saldo = saldo - 100
 WHERE id = 1;
+
 COMMIT;
-
+ROLLBACK;
 SELECT CONNECTION_ID(), @@autocommit;
-
-SELECT * FROM contas WHERE id = 1;
-
-START TRANSACTION;
-
-UPDATE contas
-SET saldo = saldo + 300
-WHERE id = 1;
