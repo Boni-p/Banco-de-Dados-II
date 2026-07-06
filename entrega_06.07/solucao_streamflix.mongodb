@@ -1,0 +1,448 @@
+/* ============================================================
+   Resolução dos Exercícios — NoSQL com MongoDB (StreamFlix)
+   Playground MongoDB (.mongodb) — extensão MongoDB for VS Code
+   ------------------------------------------------------------
+   Cada exercício traz o código executável e, logo abaixo,
+   um comentário // com o resultado esperado.
+   Dica: rode um bloco de cada vez (selecione e execute) para
+   visualizar os resultados individualmente.
+   ============================================================ */
+
+use("streamflix");
+
+/* ============================================================
+   Nível 1 — Primeiros contatos com documentos e coleções
+   ============================================================ */
+
+// Exercício 1 — Liste todos os documentos da coleção usuarios.
+db.usuarios.find();
+// Retorna os 10 usuários cadastrados (Ana, Carlos, Fernanda, João,
+// Marina, Rafael, Beatriz, Lucas, Patrícia, Eduardo).
+
+// Exercício 2 — Liste todos os documentos da coleção conteudos.
+db.conteudos.find();
+// Retorna os 15 conteúdos (filmes, séries e documentários).
+
+// Exercício 3 — Usuários da cidade de Curitiba.
+db.usuarios.find({ cidade: "Curitiba" });
+// Retorna 3: Ana Souza, João Mendes e Eduardo Martins.
+
+// Exercício 4 — Conteúdos do tipo filme.
+db.conteudos.find({ tipo: "filme" });
+// Retorna 8 filmes: Interestelar, Matrix, Avatar, O Senhor dos Anéis,
+// A Origem, Divertida Mente, Cidade de Deus e Parasita.
+
+// Exercício 5 — Conteúdo cujo título é Matrix.
+db.conteudos.find({ titulo: "Matrix" });
+// Retorna 1 documento: Matrix (1999), tipo filme, avaliacaoMedia 9.2.
+
+// Exercício 6 — Insira um novo usuário.
+db.usuarios.insertOne({
+  nome: "Gabriel Santos",
+  email: "gabriel@email.com",
+  idade: 26,
+  cidade: "Cascavel",
+  estado: "PR",
+  interesses: ["Ação", "Suspense"],
+  ativo: true
+});
+// Retorna { acknowledged: true, insertedId: ObjectId("...") }.
+// A coleção usuarios passa a ter 11 documentos.
+
+// Exercício 7 — Insira um novo conteúdo do tipo filme.
+db.conteudos.insertOne({
+  titulo: "Duna",
+  tipo: "filme",
+  ano: 2021,
+  generos: ["Ficção Científica", "Aventura"],
+  avaliacaoMedia: 8.9,
+  duracaoMinutos: 155,
+  disponivel: true
+});
+// Retorna { acknowledged: true, insertedId: ObjectId("...") }.
+// A coleção conteudos passa a ter 16 documentos.
+
+/* ============================================================
+   Nível 2 — Operadores de comparação
+   ============================================================ */
+
+// Exercício 8 — Conteúdos com avaliação média maior que 9.
+db.conteudos.find({ avaliacaoMedia: { $gt: 9 } });
+// Retorna: Interestelar, Matrix, O Senhor dos Anéis, A Origem,
+// Dark, Breaking Bad, Planeta Terra.
+
+// Exercício 9 — Usuários com idade maior que 30.
+db.usuarios.find({ idade: { $gt: 30 } });
+// Retorna: Carlos (31), Marina (35), Rafael (42), Patrícia (38), Eduardo (33).
+
+// Exercício 10 — Conteúdos lançados antes de 2010.
+db.conteudos.find({ ano: { $lt: 2010 } });
+// Retorna: Matrix, Avatar, O Senhor dos Anéis, Cidade de Deus,
+// Breaking Bad, The Office, Planeta Terra.
+
+// Exercício 11 — Conteúdos lançados a partir de 2015.
+db.conteudos.find({ ano: { $gte: 2015 } });
+// Retorna: Divertida Mente, Dark, Stranger Things, O Dilema das Redes, Parasita.
+
+// Exercício 12 — Avaliação média menor ou igual a 8.8.
+db.conteudos.find({ avaliacaoMedia: { $lte: 8.8 } });
+// Retorna: Avatar (8.8), Divertida Mente (8.7), The Office (8.8),
+// O Dilema das Redes (8.2), Senna (8.6). (Stranger Things = 8.9 NÃO entra.)
+
+// Exercício 13 — Usuários que não são do estado PR.
+db.usuarios.find({ estado: { $ne: "PR" } });
+// Retorna: Marina (SP), Rafael (RJ), Lucas (SC), Patrícia (MG).
+
+/* ============================================================
+   Nível 3 — Consultas com arrays
+   ============================================================ */
+
+// Exercício 14 — Conteúdos com o gênero Drama.
+db.conteudos.find({ generos: "Drama" });
+// Retorna: Interestelar, Cidade de Deus, Dark, Breaking Bad, Parasita.
+
+// Exercício 15 — Conteúdos com o gênero Ficção Científica.
+db.conteudos.find({ generos: "Ficção Científica" });
+// Retorna: Interestelar, Matrix, Avatar, A Origem, Dark, Stranger Things.
+
+// Exercício 16 — Conteúdos com Drama e Crime ao mesmo tempo.
+db.conteudos.find({ generos: { $all: ["Drama", "Crime"] } });
+// Retorna: Cidade de Deus e Breaking Bad.
+
+// Exercício 17 — Usuários com interesse em Suspense.
+db.usuarios.find({ interesses: "Suspense" });
+// Retorna: Carlos Lima, Fernanda Rocha e Eduardo Martins.
+
+// Exercício 18 — Conteúdos com Terror ou Mistério.
+db.conteudos.find({ generos: { $in: ["Terror", "Mistério"] } });
+// Retorna: Dark (Mistério) e Stranger Things (Terror).
+
+// Exercício 19 — Conteúdos que não possuem o gênero Comédia.
+db.conteudos.find({ generos: { $ne: "Comédia" } });
+// Retorna todos EXCETO Divertida Mente e The Office.
+
+/* ============================================================
+   Nível 4 — Objetos aninhados
+   ============================================================ */
+
+// Exercício 20 — Conteúdos dirigidos por Christopher Nolan.
+db.conteudos.find({ "diretor.nome": "Christopher Nolan" });
+// Retorna: Interestelar e A Origem.
+
+// Exercício 21 — Conteúdos cujo diretor é do Reino Unido.
+db.conteudos.find({ "diretor.pais": "Reino Unido" });
+// Retorna: Interestelar e A Origem.
+
+// Exercício 22 — Usuários cujo bairro seja Centro.
+db.usuarios.find({ "endereco.bairro": "Centro" });
+// Retorna: Ana Souza.
+
+// Exercício 23 — Usuários que possuem o campo endereco.
+db.usuarios.find({ endereco: { $exists: true } });
+// Retorna: Ana Souza e Carlos Lima.
+
+// Exercício 24 — Usuários que não possuem o campo endereco.
+db.usuarios.find({ endereco: { $exists: false } });
+// Retorna os demais usuários (Fernanda, João, Marina, Rafael,
+// Beatriz, Lucas, Patrícia, Eduardo e Gabriel).
+
+/* ============================================================
+   Nível 5 — Atualizações básicas
+   ============================================================ */
+
+// Exercício 25 — Carlos Lima -> ativo: true.
+db.usuarios.updateOne(
+  { nome: "Carlos Lima" },
+  { $set: { ativo: true } }
+);
+// Retorna matchedCount: 1, modifiedCount: 1.
+
+// Exercício 26 — Cidade de Deus -> disponivel: true.
+db.conteudos.updateOne(
+  { titulo: "Cidade de Deus" },
+  { $set: { disponivel: true } }
+);
+// Retorna matchedCount: 1, modifiedCount: 1.
+
+// Exercício 27 — Adicionar idiomaOriginal "Inglês" a Matrix.
+db.conteudos.updateOne(
+  { titulo: "Matrix" },
+  { $set: { idiomaOriginal: "Inglês" } }
+);
+// Retorna matchedCount: 1, modifiedCount: 1.
+
+// Exercício 28 — Adicionar classificacao "10+" a Interestelar.
+db.conteudos.updateOne(
+  { titulo: "Interestelar" },
+  { $set: { classificacao: "10+" } }
+);
+// Retorna matchedCount: 1, modifiedCount: 1.
+
+// Exercício 29 — Avaliação média de Avatar -> 9.0.
+db.conteudos.updateOne(
+  { titulo: "Avatar" },
+  { $set: { avaliacaoMedia: 9.0 } }
+);
+// Retorna matchedCount: 1, modifiedCount: 1.
+
+/* ============================================================
+   Nível 6 — Atualizações com operadores
+   ============================================================ */
+
+// Exercício 30 — Incrementar em 1 as visualizações de Matrix.
+db.conteudos.updateOne(
+  { titulo: "Matrix" },
+  { $inc: { visualizacoes: 1 } }
+);
+// Retorna modifiedCount: 1. Matrix: 3100000 -> 3100001.
+
+// Exercício 31 — Incrementar em 1000 as visualizações dos disponíveis.
+db.conteudos.updateMany(
+  { disponivel: true },
+  { $inc: { visualizacoes: 1000 } }
+);
+// Retorna modifiedCount igual ao nº de conteúdos disponíveis (Senna fica de fora).
+
+// Exercício 32 — Adicionar o gênero Clássico a Matrix.
+db.conteudos.updateOne(
+  { titulo: "Matrix" },
+  { $push: { generos: "Clássico" } }
+);
+// Retorna modifiedCount: 1. generos: ["Ação","Ficção Científica","Clássico"].
+
+// Exercício 33 — Remover o gênero Clássico de Matrix.
+db.conteudos.updateOne(
+  { titulo: "Matrix" },
+  { $pull: { generos: "Clássico" } }
+);
+// Retorna modifiedCount: 1. generos volta a ["Ação","Ficção Científica"].
+
+// Exercício 34 — Remover o campo telefone de Beatriz Nunes.
+db.usuarios.updateOne(
+  { nome: "Beatriz Nunes" },
+  { $unset: { telefone: "" } }
+);
+// Retorna modifiedCount: 1. Beatriz deixa de ter o campo telefone.
+
+// Exercício 35 — Adicionar benefício "sem anúncios" às assinaturas Premium.
+db.assinaturas.updateMany(
+  { plano: "Premium" },
+  { $push: { beneficios: "sem anúncios" } }
+);
+// Retorna modifiedCount: 2 (assinaturas de ana@ e marina@).
+
+/* ============================================================
+   Nível 7 — Operadores lógicos
+   ============================================================ */
+
+// Exercício 36 — Filmes com avaliação média maior que 9.
+db.conteudos.find({
+  $and: [ { tipo: "filme" }, { avaliacaoMedia: { $gt: 9 } } ]
+});
+// Retorna: Interestelar, Matrix, O Senhor dos Anéis, A Origem.
+
+// Exercício 37 — Usuários de Curitiba ou Maringá.
+db.usuarios.find({
+  $or: [ { cidade: "Curitiba" }, { cidade: "Maringá" } ]
+});
+// Retorna: Ana, João, Eduardo (Curitiba); Carlos, Beatriz (Maringá).
+
+// Exercício 38 — Conteúdos que são séries ou documentários.
+db.conteudos.find({ tipo: { $in: ["serie", "documentario"] } });
+// Retorna: Dark, Breaking Bad, Stranger Things, The Office,
+// Planeta Terra, O Dilema das Redes, Senna.
+
+// Exercício 39 — Avaliação > 9 e visualizações > 2000000.
+db.conteudos.find({
+  $and: [
+    { avaliacaoMedia: { $gt: 9 } },
+    { visualizacoes: { $gt: 2000000 } }
+  ]
+});
+// Retorna: Interestelar, Matrix, O Senhor dos Anéis, Dark, Breaking Bad.
+// (Valores de visualizacoes podem variar por causa dos Ex.30 e 31.)
+
+// Exercício 40 — Usuários ativos com idade menor que 30.
+db.usuarios.find({
+  $and: [ { ativo: true }, { idade: { $lt: 30 } } ]
+});
+// Retorna: Ana (22), João (19), Fernanda (27), Beatriz (24), Lucas (29).
+
+/* ============================================================
+   Nível 8 — Campos opcionais e flexibilidade NoSQL
+   ============================================================ */
+
+// Exercício 41 — Conteúdos que possuem o campo premios.
+db.conteudos.find({ premios: { $exists: true } });
+// Retorna: O Senhor dos Anéis e Parasita.
+
+// Exercício 42 — Conteúdos que não possuem o campo diretor.
+db.conteudos.find({ diretor: { $exists: false } });
+// Retorna: Divertida Mente, Dark, Breaking Bad, Stranger Things,
+// The Office, Planeta Terra, O Dilema das Redes, Senna.
+
+// Exercício 43 — Usuários que possuem o campo premium.
+db.usuarios.find({ premium: { $exists: true } });
+// Retorna: Marina Costa (true) e Eduardo Martins (false).
+
+// Exercício 44 — Conteúdos que possuem o campo temporadas.
+db.conteudos.find({ temporadas: { $exists: true } });
+// Retorna as séries: Dark, Breaking Bad, Stranger Things, The Office.
+
+// Exercício 45 — Por que os documentos de conteudos podem ter campos diferentes?
+// Resposta: o MongoDB tem esquema flexível (schema-less); documentos da mesma
+// coleção podem ter campos distintos. Assim, filmes têm "duracaoMinutos",
+// séries têm "temporadas"/"episodios" e documentários podem ter "narrador".
+// Isso permite modelar entidades semelhantes, mas não idênticas, juntas.
+
+/* ============================================================
+   Nível 9 — Remoção de documentos
+   ============================================================ */
+
+// Exercício 46 — Remova o usuário criado no Exercício 6.
+db.usuarios.deleteOne({ email: "gabriel@email.com" });
+// Retorna deletedCount: 1.
+
+// Exercício 47 — Remova o conteúdo criado no Exercício 7.
+db.conteudos.deleteOne({ titulo: "Duna" });
+// Retorna deletedCount: 1.
+
+// Exercício 48 — Remova todas as avaliações com nota menor que 8.
+db.avaliacoes.deleteMany({ nota: { $lt: 8 } });
+// Retorna deletedCount: 0 (todas as notas são >= 8).
+
+// Exercício 49 — Remova históricos com progresso menor que 40.
+db.historico.deleteMany({ progressoPercentual: { $lt: 40 } });
+// Retorna deletedCount: 1 (registro de patricia@ / Senna, progresso 30).
+
+/* ============================================================
+   Nível 10 — Consultas em coleções diferentes
+   ============================================================ */
+
+// Exercício 50 — Liste todas as assinaturas ativas.
+db.assinaturas.find({ ativo: true });
+// Retorna assinaturas de: ana@, fernanda@, marina@, lucas@, eduardo@.
+
+// Exercício 51 — Liste todas as assinaturas do plano Premium.
+db.assinaturas.find({ plano: "Premium" });
+// Retorna assinaturas de: ana@ e marina@.
+
+// Exercício 52 — Histórico de visualização de ana@email.com.
+db.historico.find({ usuarioEmail: "ana@email.com" });
+// Retorna 2 registros: Interestelar (100%) e Dark (T1E3, 45%).
+
+// Exercício 53 — Conteúdos finalizados no histórico.
+db.historico.find({ finalizado: true });
+// Retorna: Interestelar, Matrix, Planeta Terra, The Office, Parasita.
+
+// Exercício 54 — Avaliações com nota igual a 10.
+db.avaliacoes.find({ nota: 10 });
+// Retorna 3: ana@/Interestelar, marina@/Planeta Terra, eduardo@/Parasita.
+
+// Exercício 55 — Usuários com assinatura ativa (consulta em 2 etapas).
+db.assinaturas.find({ ativo: true }, { usuarioEmail: 1, _id: 0 });
+db.usuarios.find({
+  email: { $in: [
+    "ana@email.com", "fernanda@email.com", "marina@email.com",
+    "lucas@email.com", "eduardo@email.com"
+  ] }
+});
+// Retorna: Ana, Fernanda, Marina, Lucas e Eduardo.
+
+/* ============================================================
+   Nível 11 — Introdução à agregação
+   ============================================================ */
+
+// Exercício 56 — Conte quantos documentos existem em conteudos.
+db.conteudos.countDocuments();
+// Retorna 15 (o conteúdo do Ex.7 foi removido no Ex.47).
+
+// Exercício 57 — Conte quantos conteúdos existem por tipo.
+db.conteudos.aggregate([
+  { $group: { _id: "$tipo", total: { $sum: 1 } } }
+]);
+// Retorna: filme: 8, serie: 4, documentario: 3.
+
+// Exercício 58 — Média das avaliações médias dos conteúdos.
+db.conteudos.aggregate([
+  { $group: { _id: null, mediaGeral: { $avg: "$avaliacaoMedia" } } }
+]);
+// Retorna um documento com mediaGeral ≈ 9.03.
+
+// Exercício 59 — Conteúdos ordenados pela avaliação média (decrescente).
+db.conteudos.find().sort({ avaliacaoMedia: -1 });
+// Ordem: Breaking Bad (9.8), Planeta Terra (9.6), Interestelar (9.5),
+// O Senhor dos Anéis (9.4), Matrix (9.2)... até O Dilema das Redes (8.2).
+
+// Exercício 60 — Cinco conteúdos com maior número de visualizações.
+db.conteudos.find().sort({ visualizacoes: -1 }).limit(5);
+// Top 5: Breaking Bad (4.2M), Stranger Things (3.9M), The Office (3.3M),
+// Matrix (3.1M), Avatar (2.8M).
+
+// Exercício 61 — Média das notas da coleção avaliacoes.
+db.avaliacoes.aggregate([
+  { $group: { _id: null, mediaNotas: { $avg: "$nota" } } }
+]);
+// Retorna mediaNotas ≈ 9.13.
+
+// Exercício 62 — Quantas avaliações cada conteúdo recebeu.
+db.avaliacoes.aggregate([
+  { $group: { _id: "$tituloConteudo", total: { $sum: 1 } } }
+]);
+// Cada conteúdo avaliado recebeu 1 avaliação (total: 1 cada).
+
+// Exercício 63 — Quantos usuários existem por estado.
+db.usuarios.aggregate([
+  { $group: { _id: "$estado", total: { $sum: 1 } } }
+]);
+// Retorna: PR: 6, SP: 1, RJ: 1, SC: 1, MG: 1.
+
+/* ============================================================
+   Nível 12 — Desafio de modelagem NoSQL
+   ============================================================ */
+
+// Exercício 64 — Crie a coleção perfis_completos (dados incorporados / embedding).
+db.perfis_completos.insertOne({
+  nome: "Ana Souza",
+  email: "ana@email.com",
+  idade: 22,
+  assinatura: {
+    plano: "Premium",
+    ativo: true,
+    valorMensal: 49.90
+  },
+  historico: [
+    {
+      tituloConteudo: "Interestelar",
+      progressoPercentual: 100,
+      finalizado: true
+    },
+    {
+      tituloConteudo: "Dark",
+      temporada: 1,
+      episodio: 3,
+      progressoPercentual: 45,
+      finalizado: false
+    }
+  ]
+});
+// Retorna { acknowledged: true, insertedId: ObjectId("...") }.
+// Cria um documento único reunindo usuário + assinatura + histórico.
+
+// Exercício 65 — Coleções separadas vs. documento único.
+// Separado (referências): dados normalizados, sem duplicação, atualização em um
+// único lugar; porém exige várias consultas para reunir tudo.
+// Documento único (embedding): tudo em uma leitura, rápido e simples; porém pode
+// gerar duplicação, documentos grandes e risco de inconsistência.
+
+// Exercício 66 — Vantagem e desvantagem de documentos aninhados.
+// Vantagem: leitura rápida e atômica — dados relacionados ficam juntos, sem junções.
+// Desvantagem: duplicação, documentos grandes e dificuldade de manter consistência.
+
+// Exercício 67 — Quando usar referência entre coleções.
+// Quando: relação muitos-para-muitos; entidade grande ou que muda com frequência;
+// dado compartilhado por muitos documentos; risco de estourar o limite de 16MB.
+
+// Exercício 68 — Quando usar dados incorporados (embedding).
+// Quando: os dados são lidos sempre juntos; relação um-para-poucos e "de posse";
+// e os dados embutidos não crescem indefinidamente (ex.: endereço dentro do usuário).
